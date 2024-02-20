@@ -7,6 +7,7 @@ import pandas as pd
 
 def insert_line():
   df.loc[len(df.index)] = [insert_entry.get()]
+  insert_entry.delete(0, 'end')
   display_table.redraw()
   print(df)
 
