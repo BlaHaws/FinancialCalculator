@@ -1,32 +1,45 @@
 import tkinter as tk
-#import pandas as pd
+import pandastable as pt
+import sqlite3
+import pandas as pd
 #import numpy as np
 #import matplotlib.pyplot as plt
+
+def insert_line():
+  df.loc[len(df.index)] = [insert_entry.get()]
+  display_table.redraw()
+  print(df)
+
+def refresh_table():
+   display_table.redraw()
 
 root = tk.Tk()
 root.title("Financial Calculator and Tracker")
 root.geometry("600x400")
 
+main_label = tk.Label(root, text="Financial Calculator and Tracker")
+main_label.pack(fill="both")
+
 baseFrame = tk.Frame(root)
 baseFrame.pack()
 
-message1 = tk.Label(baseFrame, text="Welcome to the Financial Calculator and Tracker", 
-                    font=('Arial', 12), justify='center', padx=5)
-message1.config(wraplength=300)
-message1.grid(row=0, column=0, sticky='nws',)
+left_frame = tk.Frame(baseFrame)
+left_frame.grid(row=1, column=0, padx=10, pady=10)
+right_frame = tk.Frame(baseFrame)
+right_frame.grid(row=1, column=1, padx=10, pady=10)
 
-message3 = tk.Message(baseFrame, text="Money Spent:", 
-                    font=('Arial', 8), width=300, justify='left')
-message3.grid(row=1, column=0, sticky='nws')
+insert_label = tk.Label(left_frame, text="Spent:")
+insert_label.grid(row=0, column=0, padx=5, pady=5)
+insert_entry = tk.Entry(left_frame)
+insert_entry.grid(row=0, column=1, padx=5, pady=5)
 
-textBox = tk.Text(baseFrame, height=1, width=10, font=('Arial', 8))
-textBox.grid(row=2, column=0, sticky='nws', padx=5)
+insert_btn = tk.Button(left_frame, text="Insert", command=insert_line)
+refresh_btn = tk.Button(left_frame, text="Refresh", command=refresh_table)
+insert_btn.grid(row=1, column=0, padx=5, pady=5)
+refresh_btn.grid(row=1, column=1, padx=5, pady=5)
 
-message2 = tk.Label(baseFrame, text="Please enter your financial information below", 
-                    font=('Arial', 12), justify='center')
-message2.config(wraplength=300)
-message2.grid(row=0, column=1, sticky='nes')
-
-baseFrame.pack(pady=5)
+df = pd.DataFrame({'A': [1, 2, 3]})
+display_table = pt.Table(right_frame, dataframe=df)
+display_table.show()
 
 root.mainloop()
