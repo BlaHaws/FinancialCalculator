@@ -31,7 +31,8 @@ baseFrame.pack()
 left_frame = tk.Frame(baseFrame)
 left_frame.grid(row=1, column=0)
 right_frame = tk.Frame(baseFrame)
-right_frame.grid(row=1, column=1, rowspan=2)
+right_frame.grid(row=1, column=1, sticky='ew')
+right_frame.grid_columnconfigure(50, weight=0)
 
 insert_label = tk.Label(left_frame, text="Spent:")
 insert_label.grid(row=0, column=0)
@@ -44,10 +45,7 @@ insert_btn.grid(row=1, column=0)
 refresh_btn.grid(row=1, column=1)
 
 df = pd.DataFrame({'A': [1, 2, 3]})
-display_table = pt.Table(right_frame,
-                         dataframe=df,
-                         showtoolbar=True,
-                         showstatusbar=True)
+display_table = pt.Table(right_frame, dataframe=df, showtoolbar=True, showstatusbar=True)
 display_table.show()
 
 root.mainloop()
