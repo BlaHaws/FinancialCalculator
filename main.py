@@ -44,6 +44,20 @@ def load_transactions():
     for index, row in df.iterrows():
         transactions_listbox.insert(tk.END, f"{row['date']} | {row['description']} | {row['amount']} | {row['category']}")
 
+def remove_transaction():
+    selected_index = transactions_listbox.curselection()
+
+    conn = sqlite3.connect('finances.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        DELETE FROM transactions (id)
+        where id=(?)
+    ''', (selected_index))
+    conn.commit()
+    conn.close()
+
+    load_transactions()
+
 # Create the main window
 root = tk.Tk()
 root.title("Financial Tracker")
@@ -59,6 +73,7 @@ category_label = tk.Label(root, text="Category:")
 category_entry = tk.Entry(root)
 
 add_button = tk.Button(root, text="Add Transaction", command=add_transaction)
+remove_button = tk.Button(root, text="Remove Transaction", command=remove_transaction)
 
 # Create the listbox to display transactions
 transactions_listbox = tk.Listbox(root)
@@ -72,7 +87,8 @@ amount_label.grid(row=2, column=0)
 amount_entry.grid(row=2, column=1)
 category_label.grid(row=3, column=0)
 category_entry.grid(row=3, column=1)
-add_button.grid(row=4, column=0, columnspan=2)
+add_button.grid(row=4, column=0)
+remove_button.grid(row=4, column=1)
 transactions_listbox.grid(row=5, column=0, columnspan=2)
 
 # Create the database and load transactions
