@@ -1,55 +1,58 @@
 import tkinter as tk
-import pandastable as pt
-from functools import partial
-import sqlite3
+from tkinter import ttk
 import pandas as pd
-#import numpy as np
-#import matplotlib.pyplot as plt
+import mysql.connector
 
-df = pd.DataFrame({'A': [1, 2, 3]})#, 'B': [4, 5, 6]})
+mydb = mysql.connector.connect(
+  host="localhost",
+  user="yourusername",
+  password="yourpassword",
+  database="yourdatabase"
+)
 
-class PandasApp():
-  def __init__(self, master) -> None:
-    self.frame = tk.Frame(master)
-    self.frame.pack(padx=10, pady=10)
+mycursor = mydb.cursor()
 
-    self.table = pt.Table(self.frame, dataframe=df, showtoolbar=True, showstatusbar=True)
-    self.table.show()
+mycursor.execute("CREATE TABLE IF NOT EXISTS transactions (id INT AUTO_INCREMENT PRIMARY KEY, date DATE, description VARCHAR(255), amount DECIMAL(10,2))")
 
-  def insert_line(self, entry):
-    if entry.isnumeric():
-      self.table.model.df = self.table.model.df._append(entry, ignore_index=True)
-      self.table.redraw()
+class FinancialTracker:
+    def __init__(self, master):
+        self.master = master
+        master.title("Financial Tracker")
 
-  def refresh_table(self):
-    self.table.redraw()
+        # Create input fields
+        self.date_label = tk.Label(master, text="Date (YYYY-MM-DD):")
+        self.date_entry = tk.Entry(master)
 
-def __init__(self):
-  root = tk.Tk()
-  root.title("Financial Calculator and Tracker")
-  root.geometry("600x400")
-  
-  main_label = tk.Label(root, text="Financial Calculator and Tracker")
-  main_label.pack(fill="both")
+        self.desc_label = tk.Label(master, text="Description:")
+        self.desc_entry = tk.Entry(master)
 
-  baseFrame = tk.Frame(root)
-  baseFrame.pack()
+        self.amount_label = tk.Label(master, text="Amount:")
+        self.amount_entry = tk.Entry(master)
 
-  left_frame = tk.Frame(baseFrame)
-  left_frame.grid(row=1, column=0)
-  right_frame = tk.Frame(baseFrame)  
-  right_frame.grid(row=1, column=1)
-    
-  insert_label = tk.Label(left_frame, text="Spent:")
-  insert_label.grid(row=0, column=0)
-  insert_entry = tk.Entry(left_frame)
-  insert_entry.grid(row=0, column=1)
-    
-  insert_btn = tk.Button(left_frame, text="Insert", command=
-                         partial(PandasApp.insert_line, self.insert_entry.get()))
-  refresh_btn = tk.Button(left_frame, text="Refresh", command=PandasApp.refresh_table)
-  insert_btn.grid(row=1, column=0)
-  refresh_btn.grid(row=1, column=1)
+        # Create buttons
+        self.add_button = tk.Button(master, text="Add Transaction", command=self.add_transaction)
+        self.view_button = tk.Button(master, text="View Transactions", command=self.view_transactions)
 
+        # Place elements on the grid
+        # ...
 
+    def add_transaction(self):
+        # Get values from input fields
+        # Insert into the database
+        # ...
+
+    def view_transactions(self):
+        # Fetch data from the database
+        # Display in a table using Pandas
+        # ...
+
+root = tk.Tk()
+tracker = FinancialTracker(root)
 root.mainloop()
+
+def view_transactions(self):
+    mycursor.execute("SELECT * FROM transactions")
+    data = mycursor.fetchall()
+
+    df = pd.DataFrame(data, columns=['id', 'date', 'description', 'amount'])
+    # Display df in a table (e.g., using a Treeview)

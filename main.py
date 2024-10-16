@@ -1,53 +1,82 @@
 import tkinter as tk
-import pandastable as pt
-import sqlite3
 import pandas as pd
-#import numpy as np
-#import matplotlib.pyplot as plt
+import sqlite3
 
+def create_database():
+    conn = sqlite3.connect('finances.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS transactions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date DATE,
+            description TEXT,
+            amount REAL,
+            category TEXT
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
-def insert_line():
-  if insert_entry.get().isnumeric():
-    df.loc[len(df.index)] = [insert_entry.get()]
-  insert_entry.delete(0, 'end')
-  display_table.redraw()
-  print(df)
+def add_transaction():
+    date = date_entry.get()
+    description = description_entry.get()
+    amount = float(amount_entry.get())
+    category = category_entry.get()
 
+    conn = sqlite3.connect('finances.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO transactions (date, description, amount, category)
+        VALUES (?, ?, ?, ?)
+    ''', (date, description, amount, category))
+    conn.commit()
+    conn.close()
 
-def refresh_table():
-  display_table.redraw()
+    # Update the display
+    load_transactions()
 
+def load_transactions():
+    conn = sqlite3.connect('finances.db')
+    df = pd.read_sql_query("SELECT * FROM transactions", conn)
+    conn.close()
 
+    transactions_listbox.delete(0, tk.END)
+    for index, row in df.iterrows():
+        transactions_listbox.insert(tk.END, f"{row['date']} | {row['description']} | {row['amount']} | {row['category']}")
+
+# Create the main window
 root = tk.Tk()
-root.title("Financial Calculator and Tracker")
-root.geometry("600x400")
+root.title("Financial Tracker")
 
-main_label = tk.Label(root, text="Financial Calculator and Tracker")
-main_label.pack(fill="both")
+# Create input fields
+date_label = tk.Label(root, text="Date (YYYY-MM-DD):")
+date_entry = tk.Entry(root)
+description_label = tk.Label(root, text="Description:")
+description_entry = tk.Entry(root)
+amount_label = tk.Label(root, text="Amount:")
+amount_entry = tk.Entry(root)
+category_label = tk.Label(root, text="Category:")
+category_entry = tk.Entry(root)
 
-baseFrame = tk.Frame(root)
-baseFrame.pack()
+add_button = tk.Button(root, text="Add Transaction", command=add_transaction)
 
-left_frame = tk.Frame(baseFrame)
-left_frame.grid(row=1, column=0)
-right_frame = tk.Frame(baseFrame)
-right_frame.grid(row=1, column=1, rowspan=2)
+# Create the listbox to display transactions
+transactions_listbox = tk.Listbox(root)
 
-insert_label = tk.Label(left_frame, text="Spent:")
-insert_label.grid(row=0, column=0)
-insert_entry = tk.Entry(left_frame)
-insert_entry.grid(row=0, column=1)
+# Place widgets on the window
+date_label.grid(row=0, column=0)
+date_entry.grid(row=0, column=1)
+description_label.grid(row=1, column=0)
+description_entry.grid(row=1, column=1)
+amount_label.grid(row=2, column=0)
+amount_entry.grid(row=2, column=1)
+category_label.grid(row=3, column=0)
+category_entry.grid(row=3, column=1)
+add_button.grid(row=4, column=0, columnspan=2)
+transactions_listbox.grid(row=5, column=0, columnspan=2)
 
-insert_btn = tk.Button(left_frame, text="Insert", command=insert_line)
-refresh_btn = tk.Button(left_frame, text="Refresh", command=refresh_table)
-insert_btn.grid(row=1, column=0)
-refresh_btn.grid(row=1, column=1)
-
-df = pd.DataFrame({'A': [1, 2, 3]})
-display_table = pt.Table(right_frame,
-                         dataframe=df,
-                         showtoolbar=True,
-                         showstatusbar=True)
-display_table.show()
+# Create the database and load transactions
+create_database()
+load_transactions()
 
 root.mainloop()
