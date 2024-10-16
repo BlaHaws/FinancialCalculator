@@ -47,12 +47,13 @@ def load_transactions():
 def remove_transaction():
     selected_index = transactions_listbox.curselection()
 
+    #TODO Check if line selected, and handle multiple selected lines
     conn = sqlite3.connect('finances.db')
     cursor = conn.cursor()
     cursor.execute('''
-        DELETE FROM transactions (id)
-        where id=(?)
-    ''', (selected_index))
+        DELETE FROM transactions
+        WHERE id=(?)
+    ''', (selected_index,))
     conn.commit()
     conn.close()
 
